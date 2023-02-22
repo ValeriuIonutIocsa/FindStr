@@ -1,4 +1,4 @@
-package com.personal.find_str;
+package com.personal.scripts.gen.find_str;
 
 import java.io.BufferedReader;
 import java.nio.file.Files;
@@ -29,19 +29,19 @@ final class AppStartFindStr {
 
 		final Instant start = Instant.now();
 
-		if (args.length < 2) {
+		if (args.length >= 1 && "-help".equals(args[0])) {
+
+			final String helpMessage = createHelpMessage();
+			System.out.println(helpMessage);
+			System.exit(0);
+		}
+
+		if (args.length < 3) {
 
 			final String helpMessage = createHelpMessage();
 			System.err.println("ERROR - insufficient arguments" +
 					System.lineSeparator() + helpMessage);
 			System.exit(-1);
-		}
-
-		if ("-help".equals(args[0])) {
-
-			final String helpMessage = createHelpMessage();
-			System.out.println(helpMessage);
-			System.exit(0);
 		}
 
 		final String rootPathString = args[0];

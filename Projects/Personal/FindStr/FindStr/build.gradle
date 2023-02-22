@@ -1,5 +1,5 @@
 ext {
-    mainClass = 'com.personal.find_str.AppStart' + project.name
+    mainClass = 'com.personal.scripts.gen.find_str.AppStart' + project.name
     projectVersion = '0.0.1'
     convertToExe = false
     jarFolderPath = 'C:\\IVI\\Apps\\Scripts\\General\\FindStr'

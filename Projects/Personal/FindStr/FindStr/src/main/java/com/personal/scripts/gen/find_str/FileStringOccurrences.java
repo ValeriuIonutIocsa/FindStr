@@ -1,4 +1,4 @@
-package com.personal.find_str;
+package com.personal.scripts.gen.find_str;
 
 import java.nio.file.Path;
 

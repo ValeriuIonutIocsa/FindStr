@@ -18,6 +18,6 @@ class FileStringOccurrences {
 	public void print(
             final int i) {
 
-		System.out.println(i + ". " + relativeFilePath + "   " + occurrenceCount + " occurrences");
+		System.out.println(i + ". " + relativeFilePath.toUri() + "   " + occurrenceCount + " occurrences");
 	}
 }

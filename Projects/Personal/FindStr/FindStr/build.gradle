@@ -1,0 +1,14 @@
+ext {
+    mainClass = 'com.personal.find_str.AppStart' + project.name
+    projectVersion = '0.0.1'
+    convertToExe = false
+    jarFolderPath = 'C:\\IVI\\Apps\\Scripts\\General\\FindStr'
+
+    subProjectNames = []
+    compileClassPaths = []
+    compileJarFilePaths = []
+    testCompileClassPaths = []
+    testCompileJarFilePaths = []
+}
+
+apply from: gradle.ext.rootDirPath + '/common_build.gradle'

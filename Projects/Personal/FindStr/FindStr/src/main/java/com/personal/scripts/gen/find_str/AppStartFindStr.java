@@ -110,36 +110,39 @@ final class AppStartFindStr {
 			final Path filePath,
 			final List<FileStringOccurrences> fileStringOccurrencesList) {
 
-		final String filePathString = filePath.toString();
-		if (filePathPattern.matcher(filePathString).matches()) {
+		if (Files.isRegularFile(filePath)) {
 
-			if (stringToFind.isEmpty()) {
+			final String filePathString = filePath.toString();
+			if (filePathPattern.matcher(filePathString).matches()) {
 
-				final FileStringOccurrences fileStringOccurrences =
-						new FileStringOccurrences(filePath, 1);
-				fileStringOccurrencesList.add(fileStringOccurrences);
-
-			} else {
-				int occurrenceCount = 0;
-				try (BufferedReader bufferedReader = Files.newBufferedReader(filePath)) {
-
-					String line;
-					while ((line = bufferedReader.readLine()) != null) {
-
-						occurrenceCount += countOccurrences(line, stringToFind);
-					}
-
-				} catch (final Throwable thr) {
-					System.err.println("ERROR - error occurred while reading file:" +
-							System.lineSeparator() + filePath);
-					thr.printStackTrace();
-				}
-
-				if (occurrenceCount > 0) {
+				if (stringToFind.isEmpty()) {
 
 					final FileStringOccurrences fileStringOccurrences =
-							new FileStringOccurrences(filePath, occurrenceCount);
+							new FileStringOccurrences(filePath, 1);
 					fileStringOccurrencesList.add(fileStringOccurrences);
+
+				} else {
+					int occurrenceCount = 0;
+					try (BufferedReader bufferedReader = Files.newBufferedReader(filePath)) {
+
+						String line;
+						while ((line = bufferedReader.readLine()) != null) {
+
+							occurrenceCount += countOccurrences(line, stringToFind);
+						}
+
+					} catch (final Throwable thr) {
+						System.err.println("ERROR - error occurred while reading file:" +
+								System.lineSeparator() + filePath);
+						thr.printStackTrace();
+					}
+
+					if (occurrenceCount > 0) {
+
+						final FileStringOccurrences fileStringOccurrences =
+								new FileStringOccurrences(filePath, occurrenceCount);
+						fileStringOccurrencesList.add(fileStringOccurrences);
+					}
 				}
 			}
 		}

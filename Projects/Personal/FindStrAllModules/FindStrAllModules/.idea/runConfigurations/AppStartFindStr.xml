@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="AppStartFindStr" type="Application" factoryName="Application" nameIsGenerated="true">
-    <option name="MAIN_CLASS_NAME" value="com.personal.find_str.AppStartFindStr" />
+  <configuration default="false" name="AppStartFindStr" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="com.personal.scripts.gen.find_str.AppStartFindStr" />
     <module name="FindStrAllModules.FindStr.main" />
     <extension name="coverage">
       <pattern>

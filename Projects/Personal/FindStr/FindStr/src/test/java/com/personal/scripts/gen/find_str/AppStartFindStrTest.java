@@ -5,12 +5,12 @@ import org.junit.jupiter.api.Test;
 class AppStartFindStrTest {
 
 	@Test
-	void main() {
+	void testWork() {
 
 		final String rootPathString;
 		final String stringToFind;
 		final String filePathPatternString;
-		final int input = Integer.parseInt("1");
+		final int input = Integer.parseInt("11");
 		if (input == 1) {
 
 			rootPathString = "D:\\casdev\\td5\\da\\mdc\\000\\DAMDC_0U0_000\\" +
@@ -28,6 +28,6 @@ class AppStartFindStrTest {
 			throw new RuntimeException();
 		}
 
-		AppStartFindStr.main(rootPathString, stringToFind, filePathPatternString);
+		AppStartFindStr.work(rootPathString, stringToFind, filePathPatternString);
 	}
 }

@@ -1,0 +1,18 @@
+<component name="ProjectRunConfigurationManager">
+    <configuration default="false" factoryName="JUnit" folderName="FindStr" name="AppStartFindStrTest.testWork" nameIsGenerated="true" type="JUnit">
+        <module name="FindStrAllModules.FindStr.test"/>
+        <extension name="coverage">
+            <pattern>
+                <option name="PATTERN" value="com.personal.scripts.gen.find_str.*"/>
+                <option name="ENABLED" value="true"/>
+            </pattern>
+        </extension>
+        <option name="PACKAGE_NAME" value="com.personal.scripts.gen.find_str"/>
+        <option name="MAIN_CLASS_NAME" value="com.personal.scripts.gen.find_str.AppStartFindStrTest"/>
+        <option name="METHOD_NAME" value="testWork"/>
+        <option name="TEST_OBJECT" value="method"/>
+        <method v="2">
+            <option enabled="true" name="Make"/>
+        </method>
+    </configuration>
+</component>

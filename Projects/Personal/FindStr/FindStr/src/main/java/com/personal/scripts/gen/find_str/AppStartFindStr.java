@@ -48,7 +48,7 @@ final class AppStartFindStr {
 		final String stringToFind = args[1];
 		final String filePathPatternString = args[2];
 
-		main(rootPathString, stringToFind, filePathPatternString);
+		work(rootPathString, stringToFind, filePathPatternString);
 
 		final Duration executionTime = Duration.between(start, Instant.now());
 		System.out.println("done; execution time: " + durationToString(executionTime));
@@ -59,7 +59,7 @@ final class AppStartFindStr {
 		return "usage: find_str <dir_to_search_in> <string_to_find> <file_path_pattern>";
 	}
 
-	static void main(
+	static void work(
 			final String rootPathString,
 			final String stringToFind,
 			final String filePathPatternString) {

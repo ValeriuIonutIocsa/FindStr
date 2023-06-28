@@ -1,9 +1,13 @@
 package com.personal.scripts.gen.find_str;
 
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.Duration;
@@ -17,7 +21,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 final class AppStartFindStr {
 
@@ -77,11 +80,26 @@ final class AppStartFindStr {
 					Collections.synchronizedList(new ArrayList<>());
 
 			final List<Runnable> runnableList = new ArrayList<>();
-			try (Stream<Path> filePathStream = Files.walk(rootPath)) {
+			Files.walkFileTree(rootPath, new SimpleFileVisitor<>() {
 
-				filePathStream.forEach(filePath -> runnableList.add(() -> searchInFile(
-						stringToFind, filePathPattern, filePath, fileStringOccurrencesList)));
-			}
+				@Override
+				public FileVisitResult visitFile(
+						final Path filePath,
+						final BasicFileAttributes attrs) throws IOException {
+
+					runnableList.add(() -> searchInFile(
+							stringToFind, filePathPattern, filePath, fileStringOccurrencesList));
+					return super.visitFile(filePath, attrs);
+				}
+
+				@Override
+				public FileVisitResult visitFileFailed(
+						final Path file,
+						final IOException e) {
+
+					return FileVisitResult.SKIP_SUBTREE;
+				}
+			});
 
 			final ExecutorService executorService = Executors.newFixedThreadPool(12);
 			for (final Runnable runnable : runnableList) {
@@ -110,39 +128,36 @@ final class AppStartFindStr {
 			final Path filePath,
 			final List<FileStringOccurrences> fileStringOccurrencesList) {
 
-		if (Files.isRegularFile(filePath)) {
+		final String filePathString = filePath.toString();
+		if (filePathPattern.matcher(filePathString).matches()) {
 
-			final String filePathString = filePath.toString();
-			if (filePathPattern.matcher(filePathString).matches()) {
+			if (stringToFind.isEmpty()) {
 
-				if (stringToFind.isEmpty()) {
+				final FileStringOccurrences fileStringOccurrences =
+						new FileStringOccurrences(filePath, 1);
+				fileStringOccurrencesList.add(fileStringOccurrences);
+
+			} else {
+				int occurrenceCount = 0;
+				try (BufferedReader bufferedReader = Files.newBufferedReader(filePath)) {
+
+					String line;
+					while ((line = bufferedReader.readLine()) != null) {
+
+						occurrenceCount += countOccurrences(line, stringToFind);
+					}
+
+				} catch (final Throwable thr) {
+					System.err.println("ERROR - error occurred while reading file:" +
+							System.lineSeparator() + filePath);
+					thr.printStackTrace();
+				}
+
+				if (occurrenceCount > 0) {
 
 					final FileStringOccurrences fileStringOccurrences =
-							new FileStringOccurrences(filePath, 1);
+							new FileStringOccurrences(filePath, occurrenceCount);
 					fileStringOccurrencesList.add(fileStringOccurrences);
-
-				} else {
-					int occurrenceCount = 0;
-					try (BufferedReader bufferedReader = Files.newBufferedReader(filePath)) {
-
-						String line;
-						while ((line = bufferedReader.readLine()) != null) {
-
-							occurrenceCount += countOccurrences(line, stringToFind);
-						}
-
-					} catch (final Throwable thr) {
-						System.err.println("ERROR - error occurred while reading file:" +
-								System.lineSeparator() + filePath);
-						thr.printStackTrace();
-					}
-
-					if (occurrenceCount > 0) {
-
-						final FileStringOccurrences fileStringOccurrences =
-								new FileStringOccurrences(filePath, occurrenceCount);
-						fileStringOccurrencesList.add(fileStringOccurrences);
-					}
 				}
 			}
 		}

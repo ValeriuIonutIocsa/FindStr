@@ -10,7 +10,7 @@ class AppStartFindStrTest {
 		final String rootPathString;
 		final String stringToFind;
 		final String filePathPatternString;
-		final int input = Integer.parseInt("11");
+		final int input = Integer.parseInt("21");
 		if (input == 1) {
 
 			rootPathString = "D:\\casdev\\td5\\da\\mdc\\000\\DAMDC_0U0_000\\" +
@@ -23,6 +23,12 @@ class AppStartFindStrTest {
 			rootPathString = "C:\\IVI\\Prog\\JavaGradle\\Scripts\\General";
 			stringToFind = "";
 			filePathPatternString = ".*\\\\io-utils\\\\io-utils\\\\build.gradle";
+
+		} else if (input == 21) {
+
+			rootPathString = "C:\\Users\\uid39522";
+			stringToFind = "";
+			filePathPatternString = ".*\\\\AllocCtrl.xlsx";
 
 		} else {
 			throw new RuntimeException();

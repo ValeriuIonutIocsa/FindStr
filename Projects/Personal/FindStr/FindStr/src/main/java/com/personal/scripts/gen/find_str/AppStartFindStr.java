@@ -2,6 +2,7 @@ package com.personal.scripts.gen.find_str;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -48,10 +49,17 @@ final class AppStartFindStr {
 		}
 
 		final String rootPathString = args[0];
-		final String stringToFind = args[1];
-		final String filePathPatternString = args[2];
+		final String filePathPatternString = args[1];
+		final String stringToFind = args[2];
 
-		work(rootPathString, stringToFind, filePathPatternString);
+		final String stringToReplace;
+		if (args.length >= 4) {
+			stringToReplace = args[3];
+		} else {
+			stringToReplace = null;
+		}
+
+		work(rootPathString, filePathPatternString, stringToFind, stringToReplace);
 
 		final Duration executionTime = Duration.between(start, Instant.now());
 		System.out.println("done; execution time: " + durationToString(executionTime));
@@ -59,22 +67,28 @@ final class AppStartFindStr {
 
 	private static String createHelpMessage() {
 
-		return "usage: find_str <dir_to_search_in> <string_to_find> <file_path_pattern>";
+		return "usage: find_str <dir_to_search_in> <file_path_pattern> " +
+				"<string_to_find> <string_to_replace>";
 	}
 
 	static void work(
 			final String rootPathString,
+			final String filePathPatternString,
 			final String stringToFind,
-			final String filePathPatternString) {
+			final String stringToReplace) {
 
 		try {
 			final Path rootPath = Paths.get(rootPathString).toAbsolutePath().normalize();
 			System.out.println("path to search in:" + System.lineSeparator() + rootPath);
 
-			System.out.println("string to find: " + stringToFind);
-
 			final Pattern filePathPattern = Pattern.compile(filePathPatternString);
 			System.out.println("file path pattern: " + filePathPatternString);
+
+			System.out.println("string to find: " + stringToFind);
+
+			if (stringToReplace != null) {
+				System.out.println("string to replace: " + stringToReplace);
+			}
 
 			final List<FileStringOccurrences> fileStringOccurrencesList =
 					Collections.synchronizedList(new ArrayList<>());
@@ -83,21 +97,43 @@ final class AppStartFindStr {
 			Files.walkFileTree(rootPath, new SimpleFileVisitor<>() {
 
 				@Override
+				public FileVisitResult preVisitDirectory(
+						final Path dir,
+						final BasicFileAttributes attrs) {
+
+					return FileVisitResult.CONTINUE;
+				}
+
+				@Override
 				public FileVisitResult visitFile(
 						final Path filePath,
 						final BasicFileAttributes attrs) throws IOException {
 
-					runnableList.add(() -> searchInFile(
-							stringToFind, filePathPattern, filePath, fileStringOccurrencesList));
+					final String filePathString = filePath.toString();
+					if (filePathPattern.matcher(filePathString).matches()) {
+
+						runnableList.add(() -> searchInFile(
+								filePath, stringToFind, stringToReplace, fileStringOccurrencesList));
+					}
 					return super.visitFile(filePath, attrs);
+				}
+
+				@Override
+				public FileVisitResult postVisitDirectory(
+						final Path dir,
+						final IOException exc) {
+
+					return FileVisitResult.CONTINUE;
 				}
 
 				@Override
 				public FileVisitResult visitFileFailed(
 						final Path file,
-						final IOException e) {
+						final IOException exc) {
 
-					return FileVisitResult.SKIP_SUBTREE;
+					System.out.println("WARNING - cannot visit \"" + file + "\" due to " +
+							exc.getClass().getSimpleName());
+					return FileVisitResult.CONTINUE;
 				}
 			});
 
@@ -118,27 +154,27 @@ final class AppStartFindStr {
 			}
 
 		} catch (final Throwable thr) {
-			thr.printStackTrace();
+			System.err.println(thr.getClass().getSimpleName() + " " + thr.getMessage());
 		}
 	}
 
 	private static void searchInFile(
-			final String stringToFind,
-			final Pattern filePathPattern,
 			final Path filePath,
+			final String stringToFind,
+			final String stringToReplace,
 			final List<FileStringOccurrences> fileStringOccurrencesList) {
 
-		final String filePathString = filePath.toString();
-		if (filePathPattern.matcher(filePathString).matches()) {
+		if (stringToFind.isEmpty()) {
 
-			if (stringToFind.isEmpty()) {
+			final FileStringOccurrences fileStringOccurrences =
+					new FileStringOccurrences(filePath, 1);
+			fileStringOccurrencesList.add(fileStringOccurrences);
 
-				final FileStringOccurrences fileStringOccurrences =
-						new FileStringOccurrences(filePath, 1);
-				fileStringOccurrencesList.add(fileStringOccurrences);
+		} else {
+			int occurrenceCount = 0;
 
-			} else {
-				int occurrenceCount = 0;
+			if (stringToReplace == null) {
+
 				try (BufferedReader bufferedReader = Files.newBufferedReader(filePath)) {
 
 					String line;
@@ -149,16 +185,44 @@ final class AppStartFindStr {
 
 				} catch (final Throwable thr) {
 					System.err.println("ERROR - error occurred while reading file:" +
-							System.lineSeparator() + filePath);
-					thr.printStackTrace();
+							System.lineSeparator() + filePath +
+							System.lineSeparator() + thr.getClass().getSimpleName() + " " + thr.getMessage());
 				}
 
-				if (occurrenceCount > 0) {
+			} else {
+				final List<String> processedLineList = new ArrayList<>();
+				try (BufferedReader bufferedReader =
+						Files.newBufferedReader(filePath, StandardCharsets.UTF_8)) {
 
-					final FileStringOccurrences fileStringOccurrences =
-							new FileStringOccurrences(filePath, occurrenceCount);
-					fileStringOccurrencesList.add(fileStringOccurrences);
+					String line;
+					while ((line = bufferedReader.readLine()) != null) {
+
+						occurrenceCount += countOccurrences(line, stringToFind);
+						final String processedLine = line.replace(stringToFind, stringToReplace);
+						processedLineList.add(processedLine);
+					}
+
+				} catch (final Throwable thr) {
+					System.err.println("ERROR - error occurred while reading file:" +
+							System.lineSeparator() + filePath +
+							System.lineSeparator() + thr.getClass().getSimpleName() + " " + thr.getMessage());
 				}
+
+				try {
+					Files.write(filePath, processedLineList, StandardCharsets.UTF_8);
+
+				} catch (final Throwable thr) {
+					System.err.println("ERROR - error occurred while writing file:" +
+							System.lineSeparator() + filePath +
+							System.lineSeparator() + thr.getClass().getSimpleName() + " " + thr.getMessage());
+				}
+			}
+
+			if (occurrenceCount > 0) {
+
+				final FileStringOccurrences fileStringOccurrences =
+						new FileStringOccurrences(filePath, occurrenceCount);
+				fileStringOccurrencesList.add(fileStringOccurrences);
 			}
 		}
 	}

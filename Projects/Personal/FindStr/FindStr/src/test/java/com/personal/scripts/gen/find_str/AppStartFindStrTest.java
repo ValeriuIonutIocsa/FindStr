@@ -8,32 +8,36 @@ class AppStartFindStrTest {
 	void testWork() {
 
 		final String rootPathString;
-		final String stringToFind;
 		final String filePathPatternString;
+		final String stringToFind;
+		final String stringToReplace;
 		final int input = Integer.parseInt("21");
 		if (input == 1) {
 
 			rootPathString = "D:\\casdev\\td5\\da\\mdc\\000\\DAMDC_0U0_000\\" +
 					"_FS_DAMDC_0U0_NORMAL\\out\\T1Instrumentation\\Results";
-			stringToFind = "<RunnableMeasurementResult ";
 			filePathPatternString = ".*\\\\RuntimeMeasurementResults\\.xml";
+			stringToFind = "<RunnableMeasurementResult ";
+			stringToReplace = "<RunnableMeasurementResult  ";
 
 		} else if (input == 11) {
 
 			rootPathString = "C:\\IVI\\Prog\\JavaGradle\\Scripts\\General";
-			stringToFind = "";
 			filePathPatternString = ".*\\\\io-utils\\\\io-utils\\\\build.gradle";
+			stringToFind = "";
+			stringToReplace = "";
 
 		} else if (input == 21) {
 
 			rootPathString = "C:\\Users\\uid39522";
-			stringToFind = "";
 			filePathPatternString = ".*\\\\AllocCtrl.xlsx";
+			stringToFind = "";
+			stringToReplace = "";
 
 		} else {
 			throw new RuntimeException();
 		}
 
-		AppStartFindStr.work(rootPathString, stringToFind, filePathPatternString);
+		AppStartFindStr.work(rootPathString, filePathPatternString, stringToFind, stringToReplace);
 	}
 }

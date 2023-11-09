@@ -208,13 +208,17 @@ final class AppStartFindStr {
 							System.lineSeparator() + thr.getClass().getSimpleName() + " " + thr.getMessage());
 				}
 
-				try {
-					Files.write(filePath, processedLineList, StandardCharsets.UTF_8);
+				if (occurrenceCount > 0) {
 
-				} catch (final Throwable thr) {
-					System.err.println("ERROR - error occurred while writing file:" +
-							System.lineSeparator() + filePath +
-							System.lineSeparator() + thr.getClass().getSimpleName() + " " + thr.getMessage());
+					try {
+						Files.setAttribute(filePath, "dos:readonly", false);
+						Files.write(filePath, processedLineList, StandardCharsets.UTF_8);
+
+					} catch (final Throwable thr) {
+						System.err.println("ERROR - error occurred while writing file:" +
+								System.lineSeparator() + filePath +
+								System.lineSeparator() + thr.getClass().getSimpleName() + " " + thr.getMessage());
+					}
 				}
 			}
 

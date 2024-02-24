@@ -4,7 +4,9 @@ ext {
     convertToExe = false
     jarFolderPath = 'C:\\IVI\\Apps\\Scripts\\General\\FindStr'
 
-    subProjectNames = []
+    subProjectNames = [
+            ':test-utils'
+    ]
     compileClassPaths = []
     compileJarFilePaths = []
     testCompileClassPaths = []

@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 final class AppStartFindStr {
@@ -137,14 +136,11 @@ final class AppStartFindStr {
 				}
 			});
 
-			final ExecutorService executorService = Executors.newFixedThreadPool(12);
-			for (final Runnable runnable : runnableList) {
-				executorService.execute(runnable);
-			}
-			executorService.shutdown();
-			final boolean success = executorService.awaitTermination(10, TimeUnit.SECONDS);
-			if (!success) {
-				System.err.println("ERROR - failed to terminate all threads");
+			try (ExecutorService executorService = Executors.newFixedThreadPool(12)) {
+
+				for (final Runnable runnable : runnableList) {
+					executorService.execute(runnable);
+				}
 			}
 
 			for (int i = 0; i < fileStringOccurrencesList.size(); i++) {

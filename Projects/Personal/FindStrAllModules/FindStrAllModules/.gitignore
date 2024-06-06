@@ -1,6 +1,8 @@
 /.gradle/
 /build/
 /.idea/modules/
+/.idea/checkstyleidea-libs/
+/checkstyleidea.tmp/
 /out/
 /.settings/
 /bin/
